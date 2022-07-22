@@ -1,0 +1,59 @@
+---
+# create repository destination
+- name: create repository destination
+  ansible.builtin.file:
+    path: "{{ user_git_repository_directory }}"
+    owner: "{{ unix_user | default(root) }}"
+    group: "{{ unix_user | default(root) }}"
+    state: directory
+  when:
+    - user_git_repository_directory is defined
+
+# clone all repos via https
+#- name: clone all repos
+#  ansible.builtin.git:
+#    repo: "{{ item.repo }}"
+#    dest: "{{ user_git_repository_directory }}/{{ item.dest }}"
+#    version: "{{ item.version | default('HEAD') }}"
+#    force: "{{ item.force | default('false') }}"
+#  loop: "{{ user_git_repository_list }}"
+#  become: yes
+#  become_user: "{{ unix_user }}"
+#  when:
+#    - unix_user is defined
+#    - user_git_repository_directory is defined
+#    - item.ssh_key is not defined
+#  loop_control:
+#    label: "{{ item.dest }}"
+  
+# clone all repos via ssh
+- name: clone git repos via ssh
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ user_git_repository_directory }}/{{ item.dest }}"
+    accept_hostkey: yes
+    key_file: "{{ item.key_file }}"
+    version: "{{ item.version | default('HEAD') }}"
+    force: "{{ item.force | default('false') }}"
+  loop: "{{ user_git_repository_list }}"
+  become: yes
+  become_user: "{{ unix_user }}"
+  when:
+    - unix_user is defined
+    - user_git_repository_directory is defined
+    - item.key_file is defined
+  loop_control:
+    label: "{{ item.dest }}"
+
+# add extra files to the repos
+- name: add extra files to the repos
+  ansible.builtin.copy:
+    src: "{{ item.extra_files }}/"
+    dest: "{{ user_git_repository_directory }}/{{ item.dest }}"
+  loop: "{{ user_git_repository_list }}"
+  become: yes
+  become_user: "{{ unix_user }}"
+  when:
+    - unix_user is defined
+    - user_git_repository_directory is defined
+    - item.extra_files is defined

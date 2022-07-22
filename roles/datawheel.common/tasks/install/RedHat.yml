@@ -1,0 +1,16 @@
+---
+# instalation method for RedHat distributions
+
+# update dependencies
+- name: update dependencies
+  yum:
+    name: "*"
+    state: latest
+    exclude: kernel*,foo*
+
+# install common packages
+- name: install common packages
+  yum:
+    name: "{{common_packages_redhat}}"
+    state: present
+    update_cache: true

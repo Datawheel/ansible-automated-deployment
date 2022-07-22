@@ -1,0 +1,21 @@
+---
+# install tesseract-olap from a rpm local file
+- name: Install tesseract-olap
+  include_tasks: install/{{ ansible_os_family }}.yml
+
+# transfer tesseract-olap service to the child
+- name: transfer tesseract-olap service to the child
+  copy:
+    src: "{{tesseract_service}}"
+    dest: /etc/systemd/system/tesseract-olap.service
+
+# restart daemon-reload
+- name: restart daemon-reload
+  command:
+    cmd: systemctl daemon-reload
+
+# start daemon-reload
+- name: enable tesseract-olap service
+  command:
+    cmd: systemctl start tesseract-olap.service
+  ignore_errors: yes

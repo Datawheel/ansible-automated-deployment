@@ -1,0 +1,7 @@
+---
+# install tesseract-ui
+- name: install tesseract-ui
+  script:
+    cmd: "./scripts/install-tesseract-ui.sh {{tesseract_server}}"
+  become: yes
+  become_user: "{{lookup('env', 'UNIX_USER')}}"

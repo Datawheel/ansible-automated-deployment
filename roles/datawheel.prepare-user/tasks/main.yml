@@ -1,0 +1,20 @@
+---
+# Transfer the required ssh keys to the virtual machine
+- name: Transfer the required ssh keys to the virtual machine
+  include_tasks: frags/ssh/transfer.yml
+  when: user_ssh_keys
+
+# Include tasks for cloning github repos
+- name: Include tasks for cloning github repos
+  include_tasks: frags/github/github.yml
+  when: user_git
+
+# Include tasks for cache folders
+- name: Include tasks for cache folders
+  include_tasks: frags/cache/cache.yml
+  when: user_cache
+
+# Include tasks for databases backups
+- name: Include tasks for databases backups
+  include_tasks: frags/backups/backups.yml
+  when: user_backups

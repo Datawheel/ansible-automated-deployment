@@ -1,0 +1,19 @@
+---
+- name: provisioning a frontend instance with nodejs, postgresql and nginx
+  hosts: all
+  become: yes
+  become_user: root
+  remote_user: "{{lookup('env', 'UNIX_USER')}}"
+  vars_files:
+    - ../vars/frontend-instance-postgresql.yml
+
+  roles: 
+     # handles nodejs installation
+    - role: geerlingguy.nodejs
+
+    # handles postgresql installation
+    - role: anxs.postgresql
+
+    # handles nginx installation and configuration
+    - role: nginxinc.nginx
+    - role: nginxinc.nginx_config

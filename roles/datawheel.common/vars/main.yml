@@ -1,0 +1,43 @@
+---
+# vars file for datawheel.common/
+common_remove_existing_python: true
+
+common_packages_debian:
+  - acl
+  - bzip2
+  - curl
+  - gcc
+  - git
+  - htop
+  - wget
+  - apt-transport-https
+  - build-essential
+  - python3.6
+  - python3-pip
+  - software-properties-common
+
+common_packages_redhat:
+  - acl
+  - bzip2
+  - curl
+  - gcc
+  - git
+  - htop
+  - wget
+  - python36
+  - nano
+  # SELinux Packages #
+  - libselinux-python
+  - libselinux-python3
+  - libselinux-utils
+  - mcstrans
+  - policycoreutils
+  - policycoreutils-python
+  - selinux-policy
+  - selinux-policy-targeted
+  - setools
+  - setools-console
+  - setroubleshoot
+  - setroubleshoot-server
+  # Oracle #
+  - libaio

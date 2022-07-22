@@ -1,0 +1,11 @@
+---
+collections:
+  # core packages
+  - name: community.general
+    version: 3.1.0
+  - name: ansible.posix
+    version: 1.2.0
+  # installed packages
+  - name: community.postgresql
+  - name: nginxinc.nginx_core
+    version: 0.3.0

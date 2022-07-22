@@ -1,0 +1,37 @@
+---
+# Create the required directories for the backups
+- name: Create the required directories for the backups
+  ansible.builtin.file:
+    path: "{{ user_backups_directory }}/{{ item.name }}"
+    mode: "0755"
+    state: directory
+  loop: "{{ user_backups_databases }}"
+
+# Create the required directories for the backups scripts
+- name: Create the required directories for the backups scripts
+  ansible.builtin.file:
+    path: "{{ user_backups_directory }}/{{ item.name }}/scripts"
+    mode: "0755"
+    state: directory
+  loop: "{{ user_backups_databases }}"
+  when: item.scripts is defined
+
+# Copy the required scripts into the correct path
+- name: Copy the required scripts into the correct path
+  ansible.builtin.copy:
+    src: "{{ item.scripts }}/"
+    dest: "{{ user_backups_directory }}/{{ item.name }}/scripts"
+  loop: "{{ user_backups_databases }}"
+  when: item.scripts is defined
+
+# Change backup scripts permissions
+- name: Change backup scripts permissions
+  ansible.builtin.file: 
+    path: "{{ user_backups_directory }}/{{ item.name }}/scripts"
+    owner: "{{ unix_user | default(root) }}" 
+    group: "{{ unix_user | default(root) }}"
+    mode: "0700"
+    state: directory
+    recurse: yes
+  loop: "{{ user_backups_databases }}"
+  when: item.scripts is defined

@@ -1,0 +1,3 @@
+---
+# defaults file for datawheel.tesseract-ui
+tesseract_server: false

@@ -1,0 +1,14 @@
+---
+- name: initial setup of a new server
+  hosts: all
+  become: yes
+  become_user: root
+  remote_user: "{{lookup('env', 'UNIX_USER')}}"
+
+  roles:
+    # handles the repo-epel for redhat families
+    - role: geerlingguy.repo-epel
+      when: "ansible_facts['os_family'] == 'RedHat'"
+
+    # handles the installation of datawheel's common packages
+    - role: datawheel.common

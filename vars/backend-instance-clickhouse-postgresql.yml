@@ -1,0 +1,67 @@
+---
+# ansible python interpreter
+ansible_python_interpreter: /usr/bin/python3
+
+### geerlingguy.pip ###
+pip_executable: pip3
+pip_install_packages:
+  - pip>=19.0.0
+  - psycopg2-binary
+  - selinux
+  - virtualenv
+  - bamboo-lib
+  - dw-bamboo-cli
+  - PyYAML>=6.0
+
+### alexeysetevoi.clickhouse ###
+clickhouse_version: "20.3.20.6"
+clickhouse_listen_host_default:
+  - "::"
+clickhouse_users_default:
+  - { name: "default", password: "", networks: "{{ clickhouse_networks_default }}", profile: "default", quota: "default", comment: "ClickHouse Default User" }
+  - { name: "readonly", password: "{{ lookup('env', 'CLICKHOUSE_RO_PASS') }}", networks: ["::/0"], profile: "readonly", quota: "readonly", comment: "ReadOnly User" }
+clickhouse_users_custom:
+  - { name: "{{lookup('env', 'CLICKHOUSE_USER')}}", password: "{{lookup('env', 'CLICKHOUSE_PASS')}}", networks: ["::/0"], profile: "default", quota: "default", comment: "Custom Admin User" }
+clickhouse_dbs_custom:
+  - { name: etl_db }
+
+### anxs.postgresql ####
+postgresql_databases:
+  - name: cms_db
+    owner: "{{lookup('env', 'POSTGRESQL_USER')}}"
+postgresql_users:
+  - name: "{{lookup('env', 'POSTGRESQL_USER')}}"
+    pass: "{{lookup('env', 'POSTGRESQL_PASS')}}"
+    encrypted: yes
+    state: "present"
+postgresql_pg_hba_default:
+  - { type: local, database: all, user: all, address: "", method: "{{ postgresql_default_auth_method }}", comment: '"local" is for Unix domain socket connections only'}
+  - { type: local, database: all, user: "{{ postgresql_admin_user }}", address: "", method: "peer map=root_as_{{ postgresql_admin_user }}", comment: "Local root Unix user, passwordless access"}
+  - { type: host, database: all, user: all, address: "127.0.0.1/32", method: "{{ postgresql_default_auth_method_hosts }}", comment: "IPv4 local connections:"}
+  - { type: host, database: all, user: all, address: "::1/128", method: "{{ postgresql_default_auth_method_hosts }}", comment: "IPv6 local connections:"}
+  - { type: host, database: all, user: all, address: '0.0.0.0/0', method: "{{ postgresql_default_auth_method_hosts }}", comment: "Allow all outbound IPv4 traffic"}
+  - { type: host, database: all, user: all, address: '::/0', method: "{{ postgresql_default_auth_method_hosts }}", comment: "Allow all outbound IPv6 traffic"}
+postgresql_listen_addresses:
+  - "*"
+
+### nginxinc.nginx ###
+# Set SELinux enforcing for NGINX (CentOS/Red Hat only) - you may need to open ports on your own
+nginx_selinux: true
+nginx_selinux_enforcing: false
+nginx_selinux_tcp_ports:
+  - 80
+  - 443
+nginx_selinux_udp_ports:
+  - 80
+  - 443
+
+### nginxinc.nginx_config ###
+# Set SELinux enforcing for NGINX (Centos/Redhat only) - you may need to open ports on your own
+nginx_config_selinux: true
+nginx_config_selinux_enforcing: false
+nginx_config_selinux_tcp_ports:
+  - 80
+  - 443
+nginx_config_selinux_udp_ports:
+  - 80
+  - 443  

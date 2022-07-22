@@ -1,0 +1,66 @@
+---
+# Create databases backups directories on the server
+- name: Create databases backups directories on the server
+  ansible.builtin.file:
+    path: "{{ user_backups_postgresql_directory }}/{{ item.name }}"
+    mode: "0755"
+    state: directory
+  loop: "{{ postgresql_databases }}"
+
+# Transfer backup files to the server
+- name: Transfer backup files to the server
+  ansible.builtin.copy:
+    src: "{{ item.restore }}"
+    dest: "{{ user_backups_postgresql_directory }}/{{ item.name }}"
+  loop: "{{ postgresql_databases }}"
+  when: item.restore is defined
+
+# Grant permissions to psql user
+- name: Grant permissions to psql user
+  postgresql_user:
+    name: "{{ postgresql_users[0].name }}"
+    role_attr_flags: CREATEDB
+  become: yes
+  become_user: postgres
+
+# Ensure that postgresql is reloaded
+- name: Ensure that postgresql is reloaded
+  service:
+    name: "{{ user_backups_postgresql_service }}"
+    state: restarted
+
+# Add postgis extension to the required databases
+- name: Add postgis extension to the required databases
+  community.postgresql.postgresql_ext:
+    name: postgis
+    db: "{{ item.name }}"
+  become: yes
+  become_user: postgres
+  loop: "{{ postgresql_databases }}"
+  when: item.postgis is defined
+
+# Restore the required databases
+- name: Restore the required databases
+  shell: 
+     cmd: bzcat {{ item.restore.split('/')[-1] }} | psql -d {{ item.name }} -U {{ item.owner }}
+     chdir: "{{ user_backups_postgresql_directory }}/{{ item.name }}"
+  environment:
+    - PGPASSWORD: "{{ postgresql_users[0].pass }}"
+  become: yes
+  become_user: "{{ unix_user }}"
+  loop: "{{ postgresql_databases }}"
+  when: item.restore is defined
+
+# Remove permissions to psql user
+- name: Remove permissions to psql user
+  postgresql_user:
+    name: "{{ postgresql_users[0].name }}"
+    role_attr_flags: NOCREATEDB
+  become: yes
+  become_user: postgres
+
+# Ensure that postgresql is reloaded
+- name: Ensure that postgresql is reloaded
+  service:
+    name: "{{ user_backups_postgresql_service }}"
+    state: restarted

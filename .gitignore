@@ -1,0 +1,13 @@
+*.env
+files
+
+# custom environments
+custom-env
+custom-vars
+
+# test environment
+*/test
+*.test.yaml
+
+# backup files
+*.backups

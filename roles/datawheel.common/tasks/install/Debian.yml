@@ -1,0 +1,25 @@
+---
+# instalation method for Debian based distributions
+
+# update dependencies
+- name: update dependencies
+  apt:
+    update_cache: yes
+
+# remove default python package
+- name: remove default python package
+  apt:
+    name: python
+    state: absent
+  when: "common_remove_existing_python == true"
+  
+# add deadsnakes/ppa for python version packages
+- name: add deadsnakes/ppa for python version packages
+  ansible.builtin.apt_repository:
+    repo: ppa:deadsnakes/ppa
+
+# install common packages
+- name: install common packages
+  apt:
+    pkg: "{{common_packages_debian}}"
+    update_cache: yes

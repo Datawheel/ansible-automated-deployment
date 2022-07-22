@@ -1,0 +1,29 @@
+---
+# Create databases backups directories on the server
+- name: Create databases backups directories on the server
+  ansible.builtin.file:
+    path: "{{ user_backups_clickhouse_directory }}/{{ item.name }}"
+    mode: "0755"
+    state: directory
+  loop: "{{ clickhouse_dbs_custom }}"
+
+# Transfer backup files to the server
+- name: Transfer backup files to the server
+  ansible.builtin.copy:
+    src: "{{ item.restore }}"
+    dest: "{{ user_backups_clickhouse_directory }}/{{ item.name }}"
+  loop: "{{ clickhouse_dbs_custom }}"
+  when: item.restore is defined
+
+# Restore the required databases
+- name: Restore the required databases
+  shell: "bash clickhouse_ingest.sh {{ user_backups_clickhouse_directory }}/{{ item.name }}/{{ item.restore.split('/')[-1] }}"
+  args:
+    chdir: "{{ user_backups_clickhouse_directory }}/scripts"
+    executable: /bin/bash
+  environment:
+    - CLICKHOUSE_USERNAME: "{{ clickhouse_users_custom[0].name }}"
+    - CLICKHOUSE_PASSWORD: "{{ clickhouse_users_custom[0].password }}"
+    - CLICKHOUSE_DATABASE: "{{ item.name }}"
+  loop: "{{ clickhouse_dbs_custom }}"
+  when: item.restore is defined

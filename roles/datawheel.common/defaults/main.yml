@@ -1,0 +1,5 @@
+---
+# defaults file for datawheel.common/
+common_packages_debian: []
+common_packages_redhat: []
+common_remove_existing_python: false

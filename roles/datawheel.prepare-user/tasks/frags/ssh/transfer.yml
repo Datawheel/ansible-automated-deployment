@@ -1,0 +1,48 @@
+---
+# create user directory if it's not already created
+- name: create user .ssh directory if it does not exist
+  ansible.builtin.file:
+    path: /home/{{ unix_user | default(root) }}/.ssh
+    mode: "0755"
+    state: directory
+
+# copy files into .ssh directory
+- name: copy files into new user .ssh directory
+  ansible.builtin.copy:
+    src: "{{ user_ssh_keys_directory }}"
+    dest: /home/{{ unix_user | default(root) }}/.ssh
+
+# list all public keys
+- name: list all ssh keys
+  ansible.builtin.find:
+    paths: /home/{{ unix_user }}/.ssh
+    file_type: file
+  register: ssh_keys
+
+# change permisions for ssh keys
+- name: change ssh keys permissions
+  ansible.builtin.file: 
+    path: "{{ item.path }}"
+    owner: "{{ unix_user | default(root) }}" 
+    group: "{{ unix_user | default(root) }}"
+    mode: "0600"
+    state: file
+  with_items: "{{ ssh_keys.files }}"
+
+# list all public keys
+- name: list all public keys
+  ansible.builtin.find:
+    paths: /home/{{ unix_user }}/.ssh 
+    file_type: file
+    patterns: "*.pub"
+  register: public_keys
+
+# change permisions for ssh keys
+- name: change ssh public keys permissions
+  ansible.builtin.file: 
+    path: "{{ item.path }}"
+    owner: "{{ unix_user | default(root) }}" 
+    group: "{{ unix_user | default(root) }}"
+    mode: "0644"
+    state: file
+  with_items: "{{ public_keys.files }}"

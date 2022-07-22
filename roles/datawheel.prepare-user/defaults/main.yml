@@ -1,0 +1,44 @@
+---
+### SSH ###
+# Activate ssh files transfer
+user_ssh_keys: false
+# Destination of the transfer keys
+user_ssh_keys_directory: ./files/ssh/
+
+### GITHUB ###
+# Activate github clone
+user_git: false
+# Destination of cloned repositories
+user_git_repository_directory: /home/{{ unix_user | default('unset') }}/Documents/github.com/{{ unix_user | default('unset') }}
+user_git_repository_list: []
+# Example of user_git_repository_list
+# - repo: git@github.com:example-repo.git
+#   dest: example-repo
+#   version: main
+#   key_file: /home/user/.ssh/id_example_repo_ssh
+#   force: true
+#   extra_files: ./files/example-repo
+
+### CACHES ###
+user_cache: false
+user_cache_directory: /home/{{ unix_user | default(root) }}/caches
+
+### DATABASES BACKUPS ####
+user_backups: false
+user_backups_directory: /home/{{ unix_user | default('unset') }}/backups
+user_backups_databases: []
+# example
+#  - name: clickhouse
+#    scripts: false
+#  - name: postgresql
+#    scripts: ./files/backups/postgresql/scripts
+
+user_backups_clickhouse_service: clickhouse-server
+user_backups_clickhouse_directory: "{{ user_backups_directory }}/clickhouse"
+user_backups_clickhouse_scripts_directory: "{{ user_backups_directory }}/clickhouse/scripts"
+user_backups_databases_clickhouse_trigger: "select('search', 'clickhouse') | list | length > 0"
+
+user_backups_postgresql_service: postgresql
+user_backups_postgresql_directory: "{{ user_backups_directory }}/postgresql"
+user_backups_postgresql_scripts_directory: "{{ user_backups_directory }}/postgresql/scripts"
+user_backups_databases_postgresql_trigger: "select('search', 'postgresql') | list | length > 0"

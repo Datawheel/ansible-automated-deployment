@@ -1,0 +1,60 @@
+---
+unix_user: "{{lookup('env', 'UNIX_USER')}}"
+
+# ansible python interpreter
+ansible_python_interpreter: /usr/bin/python3
+
+### geerlingguy.nodejs ###
+nodejs_version: "12.x"
+nodejs_npm_global_packages:
+  - pm2
+
+### anxs.postgresql ####
+postgresql_databases:
+  - name: postgres_database
+    owner: "{{ lookup('env', 'POSTGRESQL_USER') }}"
+postgresql_users:
+  - name: "{{ lookup('env', 'POSTGRESQL_USER') }}"
+    pass: "{{ lookup('env', 'POSTGRESQL_PASS') }}"
+    encrypted: yes
+    state: "present"
+postgresql_pg_ident:
+  - comment: "root is allowed to login as {{ postgresql_admin_user }}"
+    mapname: "root_as_{{ postgresql_admin_user }}"
+    system_username: "{{ postgresql_admin_user }}"
+    pg_username: "{{ postgresql_admin_user }}"
+  - comment: "{{ lookup('env', 'POSTGRESQL_USER') }} is allowed to login as {{ lookup('env', 'POSTGRESQL_USER') }}"
+    mapname: "{{ lookup('env', 'POSTGRESQL_USER') }}_mapname"
+    system_username: "{{ lookup('env', 'UNIX_USER') }}"
+    pg_username: "{{ lookup('env', 'POSTGRESQL_USER') }}"
+postgresql_pg_hba_default:
+  - { type: local, database: all, user: "{{ lookup('env', 'POSTGRESQL_USER') }}", address: "", method: "{{ postgresql_default_auth_method }} map={{ lookup('env', 'POSTGRESQL_USER') }}_mapname", comment: "{{ lookup('env', 'POSTGRESQL_USER') }} passwordless access"}
+  - { type: local, database: all, user: "{{ postgresql_admin_user }}", address: "", method: "peer map=root_as_{{ postgresql_admin_user }}", comment: "Local root Unix user, passwordless access"}
+  - { type: host, database: all, user: all, address: "127.0.0.1/32", method: "{{ postgresql_default_auth_method_hosts }}", comment: "IPv4 local connections:"}
+  - { type: host, database: all, user: all, address: "::1/128", method: "{{ postgresql_default_auth_method_hosts }}", comment: "IPv6 local connections:"}
+  - { type: host, database: all, user: all, address: '0.0.0.0/0', method: "{{ postgresql_default_auth_method_hosts }}", comment: "Allow all outbound IPv4 traffic"}
+  - { type: host, database: all, user: all, address: '::/0', method: "{{ postgresql_default_auth_method_hosts }}", comment: "Allow all outbound IPv6 traffic"}
+postgresql_listen_addresses:
+  - "*"
+
+### nginxinc.nginx ###
+# Set SELinux enforcing for NGINX (CentOS/Red Hat only) - you may need to open ports on your own
+nginx_selinux: true
+nginx_selinux_enforcing: false
+nginx_selinux_tcp_ports:
+  - 80
+  - 443
+nginx_selinux_udp_ports:
+  - 80
+  - 443
+
+### nginxinc.nginx_config ###
+# Set SELinux enforcing for NGINX (Centos/Redhat only) - you may need to open ports on your own
+nginx_config_selinux: true
+nginx_config_selinux_enforcing: false
+nginx_config_selinux_tcp_ports:
+  - 80
+  - 443
+nginx_config_selinux_udp_ports:
+  - 80
+  - 443

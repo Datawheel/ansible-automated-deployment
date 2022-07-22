@@ -1,0 +1,22 @@
+---
+- name: provisioning a backend instance with python, bamboo, clickhouse, postgresql and nginx
+  hosts: all
+  become: yes
+  become_user: root
+  remote_user: "{{lookup('env', 'UNIX_USER')}}"
+  vars_files:
+    - ../vars/backend-instance-clickhouse-postgresql.yml
+
+  roles: 
+    # handles pip installation and the packages to install
+    - role: geerlingguy.pip
+
+    # handles clickhouse installation
+    - role: alexeysetevoi.clickhouse
+
+    # handles postgresql installation
+    - role: anxs.postgresql
+
+    # handles nginx installation and configuration
+    - role: nginxinc.nginx
+    - role: nginxinc.nginx_config

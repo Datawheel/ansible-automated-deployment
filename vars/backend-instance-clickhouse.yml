@@ -1,0 +1,48 @@
+---
+# ansible python interpreter
+ansible_python_interpreter: /usr/bin/python3
+
+### geerlingguy.pip ###
+pip_executable: pip3
+pip_install_packages:
+  - pip>=19.0.0
+  - psycopg2-binary
+  - selinux
+  - virtualenv
+  - bamboo-lib
+  - dw-bamboo-cli
+  - PyYAML>=6.0
+
+### alexeysetevoi.clickhouse ###
+clickhouse_version: "20.3.20.6"
+clickhouse_listen_host_default:
+  - "::"
+clickhouse_users_default:
+  - { name: "default", password: "", networks: "{{ clickhouse_networks_default }}", profile: "default", quota: "default", comment: "ClickHouse Default User" }
+  - { name: "readonly", password: "{{ lookup('env', 'CLICKHOUSE_RO_PASS') }}", networks: ["::/0"], profile: "readonly", quota: "readonly", comment: "ReadOnly User" }
+clickhouse_users_custom:
+  - { name: "{{lookup('env', 'CLICKHOUSE_USER')}}", password: "{{lookup('env', 'CLICKHOUSE_PASS')}}", networks: ["::/0"], profile: "default", quota: "default", comment: "Custom Admin User" }
+clickhouse_dbs_custom:
+  - { name: etl_db }
+
+### nginxinc.nginx ###
+# Set SELinux enforcing for NGINX (CentOS/Red Hat only) - you may need to open ports on your own
+nginx_selinux: true
+nginx_selinux_enforcing: false
+nginx_selinux_tcp_ports:
+  - 80
+  - 443
+nginx_selinux_udp_ports:
+  - 80
+  - 443
+
+### nginxinc.nginx_config ###
+# Set SELinux enforcing for NGINX (Centos/Redhat only) - you may need to open ports on your own
+nginx_config_selinux: true
+nginx_config_selinux_enforcing: false
+nginx_config_selinux_tcp_ports:
+  - 80
+  - 443
+nginx_config_selinux_udp_ports:
+  - 80
+  - 443  

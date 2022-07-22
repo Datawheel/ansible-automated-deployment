@@ -1,0 +1,31 @@
+---
+# install the 'Development tools' package group
+- name: Install the 'Development tools' package group
+  yum:
+    name: "@Development tools"
+    state: present
+
+# transfer .rpm file between host and child
+- name: Transfer .rpm file between host and child (centos/redhat)
+  copy:
+    src: "{{tesseract_rpm_file_path}}{{tesseract_rpm_file_name}}"
+    dest: "/home/{{lookup('env', 'UNIX_USER')}}"
+
+# install tesseract-olap on centos/redhat from the .rpm file
+- name: Install tesseract-olap from the .rpm file (centos/redhat)
+  yum:
+    name: "/home/{{lookup('env', 'UNIX_USER')}}/{{tesseract_rpm_file_name}}"
+    state: present
+
+# remove .rpm file 
+- name: remove .rpm file (centos/redhat)
+  ansible.builtin.file:
+    path: "/home/{{lookup('env', 'UNIX_USER')}}/{{tesseract_rpm_file_name}}"
+    state: absent
+
+# install glibc-2.18
+- name: Install glibc-2.18 (centos/redhat)
+  script:
+    cmd: ./scripts/install-glibc-2-18.sh
+  become: yes
+  become_user: "{{ unix_user }}"

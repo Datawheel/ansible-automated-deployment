@@ -1,0 +1,17 @@
+---
+# Include tasks for backups directories
+- name: Include tasks for backups directories
+  include_tasks: directories.yml
+  when: user_backups_databases
+
+# Include tasks for clickhouse backups
+- name: Include tasks for clickhouse backups
+  include_tasks: clickhouse.yml
+  loop: "{{ clickhouse_dbs_custom }}"
+  when: item.restore is defined
+
+# Include tasks for postgresql backups
+- name: Include tasks for postgresql backups
+  include_tasks: postgresql.yml
+  loop: "{{ postgresql_databases }}"
+  when: item.restore is defined
